@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+    <form class="form-group" method="post">
+      {% csrf_token %}
+      {{date_form}}
+      <button class="btn btn-outline-primary" type="submit">Get reports for this period</button>
+    </form>
+    {% if data %}
+      <div class="container">
+        <h3 class="center">[{{data.start_date}} - {{data.end_date}}]</h3>
+        <h3 class="center">Income Statement Report</h3>
+        <table class="table">
+          <tbody>
+            <tr>
+              <th scope="row">Revenue</th>
+              <td>{{data.revenue}}</td>
+            </tr>
+            <tr>
+              <th scope="row">Gross profit</th>
+              <td>{{data.gross_profit}}</td>
+            </tr>
+            <tr>
+              <th scope="row">Operating income</th>
+              <td>{{data.operating_income}}</td>
+            </tr>
+            <tr>
+              <th scope="row">Income before tax</th>
+              <td>{{data.income_before_tax}}</td>
+            </tr>
+            <tr>
+              <th scope="row">Net income</th>
+              <td>{{data.net_income}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <h3 class="center">Cash Flow Statement Report</h3>
+        <table class="table">
+          <tbody>
+            <tr>
+              <th scope="row">Operating cash flow</th>
+              <td>{{data.operating_cash_flow}}</td>
+            </tr>
+            <tr>
+              <th scope="row">Cash net income</th>
+              <td>{{data.cash_net_income}}</td>
+            </tr>
+            <tr>
+              <th scope="row">Cash from operations</th>
+              <td>{{data.cash_from_operations}}</td>
+            </tr>
+          </tbody>
+        </table>
+<!--        <h3 class="center">Balance Report</h3>-->
+<!--        <table class="table">-->
+<!--          <tbody>-->
+<!--            <tr>-->
+<!--              <th scope="row">Assets</th>-->
+<!--              <td>{{data.assets}}</td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--              <th scope="row">Liabilities</th>-->
+<!--              <td>{{data.liabilities}}</td>-->
+<!--            </tr>-->
+<!--          </tbody>-->
+<!--        </table>-->
+<!--        <h3 class="center">Assets</h3>-->
+<!--        <ul class="list-group">-->
+<!--          {% for key in data.assets_dict %}-->
+<!--            <li class="list-group-item">{{key}} : {{data.assets_dict.key}}</li>-->
+<!--          {% endfor %}-->
+<!--        </ul>-->
+<!--        <br>-->
+<!--        <h3 class="center">Liabilities</h3>-->
+<!--        <ul class="list-group">-->
+<!--          {% for key in data.liabilities_dict %}-->
+<!--            <li class="list-group-item">{{key}} : {{data.liabilities_dict.value}}</li>-->
+<!--          {% endfor %}-->
+<!--        </ul>-->
+      </div>
+    {% endif %}
+{% endblock %}

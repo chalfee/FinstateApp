@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Create factory{% endblock %}
+
+{% block content %}
+    <form class="form-group" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            {% csrf_token %}
+            {{ factory_registration_form }}
+            <button class="btn btn-outline-primary mt-3" type="submit">Create factory</button>
+            <style>
+                input { display: block; margin-button: 20px; margin-button: 20px; }
+            </style>
+        </div>
+    </form>
+{% endblock %}

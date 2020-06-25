@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Main page{% endblock %}
+
+{% block content %}
+  {% if user.is_authenticated %}
+    {% if data.holding %}
+      <div class="container">
+        <div class="container">
+          <h4>{{ data.holding.name }}</h4>
+          <br>
+          <a class="btn btn-outline-primary" href="{% url 'add_factory' data.holding.id %}">
+            Add new factory to your holding</a>
+        </div>
+        <br>
+        <br>
+        {% if data.factories %}
+          <script src="https://www.google.com/jsapi"></script>
+          <script>
+            open_plot = ''
+            function hide(id) {
+              if (open_plot == '') {
+                open_plot = id
+                document.getElementById(id).innerHTML = 'Hide statistic'
+                id = id.slice(6)
+                document.getElementById(id).hidden = !document.getElementById(id).hidden
+                plot(id)
+              }
+              else {
+                if (id == open_plot) {
+                  open_plot = ''
+                  document.getElementById(id).innerHTML = 'Show statistic'
+                  id = id.slice(6)
+                  document.getElementById(id).hidden = !document.getElementById(id).hidden;
+                }
+                else {
+                  document.getElementById(open_plot).innerHTML = 'Show statistic'
+                  open_plot = open_plot.slice(6)
+                  document.getElementById(open_plot).hidden = !document.getElementById(open_plot).hidden;
+                  open_plot = id
+                  document.getElementById(id).innerHTML = 'Hide statistic'
+                  id = id.slice(6)
+                  document.getElementById(id).hidden = !document.getElementById(id).hidden;
+                  plot(id)
+                }
+              }
+            }
+
+            function plot(id) {
+              labels = document.getElementById(id + '_labels').innerHTML.split(',');
+              datasets = [];
+              checkboxes = document.getElementsByClassName(id + '_data_checkbox');
+              for (i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                  datasets.push({
+                    lineTension: 0.2,
+                    label: document.getElementById(id + '_label_checkbox_' + i.toString()).innerHTML.split('>')[1],
+                    borderColor: '#' + Math.floor(Math.random() * 16777215).toString(16),
+                    data: document.getElementById(id + '_dataset_' + i.toString()).innerHTML.split(',')
+                  })
+                }
+              }
+              d = document.getElementById(id + '_cbs')
+              d.innerHTML = ''
+              d.innerHTML = '<canvas id="' + id + '_myChart"></canvas>'
+              var ctx = document.getElementById(id + '_myChart').getContext('2d');
+              var chart = new Chart(ctx, {
+                  type: 'line',
+                  data: {
+                      labels: labels,
+                      datasets: datasets
+                  },
+                  options: {}
+              });
+            }
+
+            stocks = document.getElementsByClassName('stock')
+            for (i = 0; i < stocks.length; i++) {
+              var s = stock.id.slice(6)
+              var t = document.getElementById(s + '_symbol').innerHTML
+              var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": "https://alpha-vantage.p.rapidapi.com/query?symbol=" + t + "&function=GLOBAL_QUOTE",
+                "method": "GET",
+                "headers": {
+                    "x-rapidapi-host": "alpha-vantage.p.rapidapi.com",
+                    "x-rapidapi-key": "b5034b71afmshf6154bd4cd6fdc1p18f532jsndf498b614c3a"
+                }
+              }
+
+              $.ajax(settings).done(function (response) {
+                document.getElementById(s + '_price').innerHTML = response['Global Quote']['02. open'] + '$'
+              });
+            }
+
+          </script>
+
+
+
+          {% for factory in data.factories %}
+            <div class="container">
+              <h5>{{factory.0.name}}</h5>
+              <div class="stock" id="stock_factory_{{factory.0.id}}">
+                <p id="factory_{{factory.0.id}}_symbol">{{factory.0.symbol}}</p>
+                <p id="factory_{{factory.0.id}}_price"></p>
+              </div>
+              <p>{{factory.0.requisites}}</p>
+              <p>{{factory.0.phone}}</p>
+              <button class="btn btn-outline-primary" id="hider_factory_{{factory.0.id}}"
+                      onclick="hide(this.id)" style="outline: none;">Show statistic</button>
+              {% if factory.1 %}
+                <div class="container my-1" id="factory_{{factory.0.id}}" hidden="true">
+                  <div>
+                    <div class="factory_{{factory.0.id}}_data_for_graph" hidden="false">
+                      <p id="factory_{{factory.0.id}}_labels">{{factory.1.dates}}</p>
+                      <p id="factory_{{factory.0.id}}_dataset_0">{{factory.1.revenue}}</p>
+                      <p id="factory_{{factory.0.id}}_dataset_1">{{factory.1.net_income}}</p>
+                      <p id="factory_{{factory.0.id}}_dataset_2">{{factory.1.cash_from_operations}}</p>
+                      <p id="factory_{{factory.0.id}}_dataset_3">{{factory.1.cash_net_income}}</p>
+                    </div>
+                    <div>
+                      <div id="factory_{{factory.0.id}}_cbs">
+                      </div>
+                      <div class="container">
+                        <label id="factory_{{factory.0.id}}_label_checkbox_0"><input class="mr-1 factory_{{factory.0.id}}_data_checkbox" type="checkbox" checked>Revenue</label>
+                        <label id="factory_{{factory.0.id}}_label_checkbox_1"><input class="mr-1 factory_{{factory.0.id}}_data_checkbox" type="checkbox" unchecked>Net income</label>
+                        <label id="factory_{{factory.0.id}}_label_checkbox_2"><input class="mr-1 factory_{{factory.0.id}}_data_checkbox" type="checkbox" unchecked>Cash from operations</label>
+                        <label id="factory_{{factory.0.id}}_label_checkbox_3"><input class="mr-1 factory_{{factory.0.id}}_data_checkbox" type="checkbox" unchecked>Cash_net_income</label>
+                        <button class="btn btn-outline-primary" id="plot_btn_factory_{{factory.0.id}}" onclick="plot('factory_{{factory.0.id}}')">Plot</button>
+                      </div>
+                    </div>
+                  </div>
+                {%else%}
+                  <p class="mt-2">This factory have not any reports</p>
+                {% endif %}
+              </div>
+            </div>
+            <br>
+          {% endfor %}
+        {% else %}
+          <p>You have not any factories yet. Please add it.</p>
+        {% endif %}
+
+      </div>
+    {% else %}
+      <div class="container">
+        <h6>You have not registered your holding yet. Please do it</h6>
+        <br>
+        <form class="form-group" action="{% url 'holding_registration' %}" method="post">
+          {% csrf_token %}
+          {{ data.holding_registration_form }}
+          <button class="btn btn-outline-primary" type="submit">Create holding</button>
+        </form>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="container">
+      <h6>Unregistered users can get statistics from only one report without the possibility of saving.
+        If you want to create a holding and get all features, then please
+        <a href="{% url 'login' %}">log in</a></h6>
+      <br>
+      <form class="form-group" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{form}}
+        <button class="btn btn-outline-primary" type="submit">Upload</button>
+      </form>
+    </div>
+  {% endif %}
+{% endblock %}
